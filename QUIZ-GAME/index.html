@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Quiz Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .question-card {
+            background-color: #e5e7eb;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .option-button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            background-color: #d1d5db;
+            color: #1f2937;
+            font-weight: 500;
+            text-align: left;
+            transition: transform 0.1s ease-in-out;
+            cursor: pointer;
+        }
+        .option-button:hover {
+            transform: translateY(-2px);
+            background-color: #a1a1aa;
+        }
+        .selected {
+            background-color: #60a5fa !important;
+            color: white !important;
+        }
+        .correct {
+            background-color: #34d399 !important;
+        }
+        .incorrect {
+            background-color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container text-center">
+        <h1 class="text-3xl font-bold mb-4 text-gray-800">JavaScript Fundamentals Quiz</h1>
+        <p class="text-gray-600 mb-6">Test your knowledge with these basic questions!</p>
+        <div id="quiz-container">
+            <!-- Quiz questions will be dynamically inserted here -->
+        </div>
+        <button id="submit-btn" class="mt-8 px-8 py-3 bg-blue-500 text-white font-bold rounded-full shadow-lg hover:bg-blue-600 transition-colors" onclick="checkAnswers()">
+            Submit Answers
+        </button>
+        <div id="score-container" class="mt-6 text-xl font-semibold text-gray-700"></div>
+    </div>
+
+    <script>
+        // Data Types: We are using a 'const' to declare the quiz data, which is an 'Array' of 'Objects'.
+        // Each 'Object' represents a question and has properties for the 'String' question text,
+        // an 'Array' of 'String' options, and the 'Number' index of the correct answer.
+        const quizData = [
+            {
+                question: "What is the correct way to declare a variable in JavaScript?",
+                options: ["var myVar;", "let myVar;", "const myVar;"],
+                correctIndex: 2
+            },
+            {
+                question: "Which of the following is not a primitive data type?",
+                options: ["String", "Boolean", "Object", "Number"],
+                correctIndex: 2
+            },
+            {
+                question: "How do you write a 'for' loop that counts from 0 to 5?",
+                options: ["for (i <= 5; i++)", "for (let i = 0; i < 6; i++)", "for (i = 0; i < 5)"],
+                correctIndex: 1
+            },
+            {
+                question: "Which of these will evaluate to 'true'?",
+                options: ["10 == '10'", "10 === '10'", "10 === 10"],
+                correctIndex: 2
+            }
+        ];
+
+        // Variables: We use 'let' for the score because its value will change during the game.
+        let score = 0;
+
+        // Function: This function is responsible for building and displaying the quiz questions on the page.
+        function displayQuiz() {
+            // Get the HTML element where the quiz will be shown.
+            const quizContainer = document.getElementById('quiz-container');
+
+            // Loop: We use a 'for' loop to iterate through each question in our quizData array.
+            for (let i = 0; i < quizData.length; i++) {
+                // Get the current question object from the array.
+                const currentQuestion = quizData[i];
+
+                // Create a new div to hold the question and its options.
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card';
+                questionCard.id = `question-${i}`;
+
+                // Create an h3 element for the question text.
+                const questionText = document.createElement('h3');
+                questionText.className = 'font-semibold text-gray-800 mb-2';
+                questionText.textContent = `${i + 1}. ${currentQuestion.question}`;
+
+                // Add the question text to the card.
+                questionCard.appendChild(questionText);
+
+                // Loop through the options and create buttons for each one.
+                currentQuestion.options.forEach((option, optionIndex) => {
+                    const optionButton = document.createElement('button');
+                    optionButton.className = 'option-button';
+                    optionButton.textContent = option;
+                    optionButton.dataset.questionIndex = i; // Store the question index
+                    optionButton.dataset.optionIndex = optionIndex; // Store the option index
+
+                    // Add a click event listener to handle when a user selects an option.
+                    optionButton.addEventListener('click', (event) => {
+                        // Remove the 'selected' class from any other option for this question.
+                        const parentCard = event.target.closest('.question-card');
+                        parentCard.querySelectorAll('.option-button').forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        // Add the 'selected' class to the clicked button.
+                        event.target.classList.add('selected');
+                    });
+
+                    questionCard.appendChild(optionButton);
+                });
+
+                // Add the complete question card to the quiz container.
+                quizContainer.appendChild(questionCard);
+            }
+        }
+
+        // Function: This function checks the user's answers when the 'Submit' button is clicked.
+        function checkAnswers() {
+            // Reset the score to 0 before re-calculating.
+            score = 0;
+
+            // Loop: We use a 'for' loop to go through each question again.
+            for (let i = 0; i < quizData.length; i++) {
+                const currentQuestion = quizData[i];
+                const questionCard = document.getElementById(`question-${i}`);
+                const selectedButton = questionCard.querySelector('.option-button.selected');
+
+                // Control Flow: We use an 'if/else' statement to check if an option was selected and if it's correct.
+                if (selectedButton) {
+                    // Convert the data attributes to numbers for comparison.
+                    const selectedIndex = parseInt(selectedButton.dataset.optionIndex);
+                    const correctIndex = currentQuestion.correctIndex;
+
+                    // If the selected answer is correct...
+                    if (selectedIndex === correctIndex) {
+                        // ...add 1 to the score and highlight the button in green.
+                        score++;
+                        selectedButton.classList.add('correct');
+                    } else {
+                        // ...otherwise, highlight the selected button in red and the correct one in green.
+                        selectedButton.classList.add('incorrect');
+                        const correctButton = questionCard.querySelector(`[data-option-index="${correctIndex}"]`);
+                        correctButton.classList.add('correct');
+                    }
+                }
+            }
+
+            // Display the final score.
+            const scoreContainer = document.getElementById('score-container');
+            scoreContainer.textContent = `You scored ${score} out of ${quizData.length} questions!`;
+
+            // Disable the submit button after the first check.
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('submit-btn').classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            document.getElementById('submit-btn').classList.add('bg-gray-400', 'cursor-not-allowed');
+        }
+
+        // Call the displayQuiz function to start the game when the page loads.
+        displayQuiz();
+    </script>
+</body>
+</html>

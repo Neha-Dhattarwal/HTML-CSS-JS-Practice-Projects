@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple E-commerce Price Filter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+        }
+        .product-card {
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+        }
+        .product-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        .product-price {
+            font-weight: 700;
+            color: #4b5563;
+        }
+        .input-group input {
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #2563eb;
+        }
+        .message-box {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background-color: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        .message-box.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-2">E-commerce Price Filter</h1>
+        <p class="text-center text-gray-500 mb-8">Filter products based on your desired price range.</p>
+
+        <!-- Filter Controls -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8 p-4 bg-gray-100 rounded-xl">
+            <div class="input-group flex items-center gap-2">
+                <label for="minPrice" class="text-sm font-medium text-gray-700">Min Price:</label>
+                <input type="number" id="minPrice" value="0" class="w-24 text-center">
+            </div>
+            <div class="input-group flex items-center gap-2">
+                <label for="maxPrice" class="text-sm font-medium text-gray-700">Max Price:</label>
+                <input type="number" id="maxPrice" value="500" class="w-24 text-center">
+            </div>
+            <button id="filterBtn" class="bg-blue-600 text-white font-medium py-2 px-6 rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                Filter Products
+            </button>
+        </div>
+
+        <!-- All Products Section -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">All Products</h2>
+            <div id="allProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Products will be displayed here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Filtered Products Section -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-4">Filtered Products</h2>
+            <div id="filteredProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Filtered products will be displayed here -->
+            </div>
+        </div>
+    </div>
+    
+    <div id="messageBox" class="message-box"></div>
+
+    <script>
+        // --- 1. DATA STRUCTURES (Arrays & Objects) ---
+
+        // We use `const` because our array of products won't be reassigned.
+        // It's a constant list of all our products.
+        // `const` is a good practice for variables that you don't intend to change.
+        const products = [
+            // This is an array. An array is like a list of items.
+            // Each item in this list is an object.
+            // An object is a collection of related data, stored as key-value pairs.
+            { name: "Laptop", price: 1200 }, // This is an object with two properties: `name` and `price`.
+            { name: "Mouse", price: 25 },
+            { name: "Keyboard", price: 75 },
+            { name: "Monitor", price: 300 },
+            { name: "Webcam", price: 50 },
+            { name: "Headphones", price: 150 },
+            { name: "Microphone", price: 90 },
+            { name: "Speakers", price: 200 },
+            { name: "Printer", price: 180 },
+            { name: "Router", price: 60 },
+        ];
+
+        // --- 2. GETTING ELEMENTS FROM THE HTML ---
+
+        // We need to grab elements from our HTML document to work with them in JavaScript.
+        // This is done using `document.getElementById()`.
+        const allProductsDiv = document.getElementById('allProducts');
+        const filteredProductsDiv = document.getElementById('filteredProducts');
+        const minPriceInput = document.getElementById('minPrice');
+        const maxPriceInput = document.getElementById('maxPrice');
+        const filterButton = document.getElementById('filterBtn');
+        const messageBox = document.getElementById('messageBox');
+
+        // --- 3. CORE FUNCTIONALITY (Functions) ---
+
+        // This function takes an array of products and a DOM element ID,
+        // then displays the products inside that element.
+        // It's a reusable piece of code.
+        function displayProducts(productsToDisplay, element) {
+            // We'll create an HTML string to insert into our document.
+            // The `map()` method is a "Higher-Order Function".
+            // It runs a function on every item in an array and creates a *new* array
+            // with the results. It's a very powerful tool.
+            const productHtml = productsToDisplay.map(product => {
+                // Here, we use "dot notation" (e.g., `product.name`) to access the properties of each object.
+                return `
+                    <div class="product-card">
+                        <p class="product-name">${product.name}</p>
+                        <p class="product-price">$${product.price.toFixed(2)}</p>
+                    </div>
+                `;
+            }).join(''); // `.join('')` combines all the HTML strings into one big string.
+
+            // Now we set the `innerHTML` of our element to the generated HTML.
+            element.innerHTML = productHtml;
+
+            // If there are no products to display, we show a message.
+            if (productsToDisplay.length === 0) {
+                element.innerHTML = '<p class="text-center text-gray-500">No products found in this range.</p>';
+            }
+        }
+
+        // This function handles the filtering logic when the button is clicked.
+        function filterProducts() {
+            // Get the values from the input fields.
+            // The `+` sign before `minPriceInput.value` converts the string into a number.
+            const minPrice = +minPriceInput.value;
+            const maxPrice = +maxPriceInput.value;
+
+            // --- 4. HIGHER-ORDER FUNCTIONS (The `filter()` method) ---
+
+            // The `filter()` method is a powerful way to create a new array
+            // containing only the items that pass a certain test.
+            // The test is defined in a small function (called a "callback function")
+            // that is run for every item in the array.
+            const filtered = products.filter(product => {
+                // This is the "test" or condition.
+                // It returns `true` if the product's price is within the range,
+                // and `false` otherwise.
+                // Only the products for which this returns `true` are included
+                // in the `filtered` array.
+                return product.price >= minPrice && product.price <= maxPrice;
+            });
+
+            // --- 5. ALTERNATIVE: TRADITIONAL LOOP (`for` loop) ---
+
+            /*
+            // You can also achieve the same result with a traditional loop.
+            // This is how you would have done it before the `filter()` method
+            // became common. It's important to understand this to see the
+            // power and simplicity of `filter()`.
+            const filteredWithLoop = [];
+            for (let i = 0; i < products.length; i++) {
+                const product = products[i]; // Get the current product from the array.
+                if (product.price >= minPrice && product.price <= maxPrice) {
+                    filteredWithLoop.push(product); // Add it to our new array if it passes the test.
+                }
+            }
+            */
+            
+            // Now, we use our display function to show the filtered results.
+            displayProducts(filtered, filteredProductsDiv);
+
+            // We can also show a small message to the user.
+            showMessage(`Found ${filtered.length} products.`);
+        }
+
+        // This function shows a temporary message box.
+        function showMessage(msg) {
+            messageBox.textContent = msg;
+            messageBox.classList.add('show');
+            // Hide the message after 3 seconds.
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- 6. EVENT LISTENERS ---
+
+        // We attach a "click" event listener to the button.
+        // This means that when the button is clicked, our `filterProducts` function will run.
+        filterButton.addEventListener('click', filterProducts);
+
+        // --- 7. INITIAL SETUP ---
+
+        // When the page first loads, we want to display all the products.
+        // We call our `displayProducts` function to do this.
+        displayProducts(products, allProductsDiv);
+
+    </script>
+</body>
+</html>

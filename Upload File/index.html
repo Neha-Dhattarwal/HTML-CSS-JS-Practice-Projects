@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    html, body{
+        height: 100%;
+        width: 100%;
+    }
+    #main{
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    h1{
+        
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        font-size: 300px;
+        color: #555;
+        user-select: none;
+    }
+    input{
+        display: none;
+    }
+    #btn{
+        padding: 12px 22px;
+        background-color: rgb(12, 100, 99);
+        color: aliceblue;
+        border-radius: 30px;
+        cursor: pointer;
+    }
+    #btn:hover{
+        background-color: #555;
+    }
+</style>
+<body>
+    <div id="main">
+       <input id="fileinput" type="file">
+       <div id="btn">
+       Upload Button
+       </div>
+    </div>
+    
+    <script>
+       let btn =document.querySelector("#btn");
+        let fileinput= document.querySelector("#fileinput");
+
+        btn.addEventListener("click", function(){
+            fileinput.click();
+        })
+        fileinput.addEventListener("change", function(dets){
+            btn.textContent= dets.target.files[0].name;
+        })
+    </script>
+</body>
+</html>

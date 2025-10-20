@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guess The Number</title>
+</head>
+<style>
+    body {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: linear-gradient(to right,
+                rgb(255, 186, 83),
+                rgb(185, 104, 183));
+        font-family: Arial, sans-serif;
+    }
+
+    #main {
+        background-image: radial-gradient(rgb(232, 232, 85), pink);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+    }
+
+    input {
+        padding: 10px;
+        width: 60%;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #4caf50;
+        color: white;
+    }
+
+    h2 {
+        margin-top: 20px;
+    }
+</style>
+
+<body>
+    <div id="main">
+        <h1>Guess The Number</h1>
+        <input type="number" id="guess" placeholder="guess a number" />
+        <button id="check">Check</button>
+        <button id="reset">Reset</button>
+        <h2 id="result"></h2>
+    </div>
+
+    <script>
+        let secret = Math.floor(Math.random() * 10) + 1;
+        let attempts = 0;
+
+        const input = document.getElementById("guess");
+        const check = document.getElementById("check");
+        const reset = document.getElementById("reset");
+        const result = document.getElementById("result");
+
+        check.addEventListener("click", function () {
+            const guess = Number(input.value);
+            attempts++;
+
+            if (!guess || guess < 1 || guess > 10) {
+                result.textContent = "Please enter a number between 1 and 100!";
+            } else if (guess === secret) {
+                result.textContent = `Right Guess 🎉  You guessed it in ${attempts} attempts!`;
+            } else if (guess < secret) {
+                result.textContent = "📈 Too low! Try a higher number.";
+            } else {
+                result.textContent = "📉 Too high! Try a lower number.";
+            }
+
+        });
+        reset.addEventListener("click", function () {
+                secret = Math.floor(Math.random() * 10) + 1;
+                attempts = 0;
+                input.value = "";
+                result.textContent = "";
+            })
+    </script>
+</body>
+
+</html>

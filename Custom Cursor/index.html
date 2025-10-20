@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Cursor</title>
+</head>
+<style>
+    body {
+        height: 100vh;
+        margin: 0;
+        background-color: #bebebe;
+        cursor: none;
+        /* Hide default cursor */
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #cursor {
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        background-color: #ff4d4d;
+        border-radius: 50%;
+        pointer-events: none;
+        /* Cursor should not block clicks */
+        transform: translate(-50%, -50%);
+        transition: transform 0.05s ease, background-color 0.2s ease;
+    }
+</style>
+
+<body>
+    <div id="cursor"></div>
+    <script>
+        const cursor = document.getElementById("cursor");
+        window.addEventListener("mousemove", (e) => {
+            cursor.style.left = e.clientX + "px";
+            cursor.style.top = e.clientY + "px";
+        })
+
+        window.addEventListener("mousedown", (e) => {
+            cursor.style.transform = "translate(-50%,-50%) scale(1.5)";
+            cursor.style.backgroundColor = "blue";
+        })
+        window.addEventListener("mouseup", () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(1)";
+            cursor.style.backgroundColor = "#ff4d4d";
+        });
+
+    </script>
+</body>
+
+</html>

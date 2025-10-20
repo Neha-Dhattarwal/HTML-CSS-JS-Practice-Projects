@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>This Keyword Example</title>
+    <style>
+      body {
+        font-family: Arial;
+        text-align: center;
+        margin-top: 50px;
+      }
+
+      .card {
+        border: 2px solid #aaa;
+        display: inline-block;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 10px;
+        width: 200px;
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        border: none;
+        background-color: teal;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: darkcyan;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>👩‍💻 Profile Manager (Understanding "this")</h2>
+
+    <div id="profiles"></div>
+
+    <script>
+      // Simple constructor function to create profile objects
+      function Profile(name, age) {
+        this.name = name;
+        this.age = age;
+
+        // Method to display profile info
+        this.showInfo = function () {
+          alert(`Hi! I'm ${this.name} and I'm ${this.age} years old.`);
+        };
+      }
+
+      // Create a few profiles
+      const p1 = new Profile("Neha", 20);
+      const p2 = new Profile("Riya", 22);
+      const p3 = new Profile("Sia", 19);
+
+      // Add them to the page dynamically
+      const container = document.getElementById("profiles");
+
+      [p1, p2, p3].forEach(function (profile) {
+        // Create a card div
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+    <h3>${profile.name}</h3>
+    <p>Age: ${profile.age}</p>
+    <button>Show Info</button>
+  `;
+
+        // Find the button inside the card
+        const btn = card.querySelector("button");
+
+        // Attach a click event
+        btn.addEventListener("click", function () {
+          // "this" here refers to the button itself
+          console.log("Button clicked:", this);
+
+          // Call profile.showInfo(), where "this" will refer to the profile object
+          profile.showInfo();
+        });
+
+        // Add card to the page
+        container.appendChild(card);
+      });
+    </script>
+  </body>
+</html>

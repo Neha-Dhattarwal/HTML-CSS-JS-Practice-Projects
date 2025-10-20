@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Circle</title>
+</head>
+<style>
+        body {
+            height: 100vh;
+            margin: 0;
+            background-color: #222;
+        }
+
+        #circle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff; /* hollow circle */
+            border-radius: 50%;
+            pointer-events: none; /* allow clicks through cursor */
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease, border-color 0.2s ease;
+        }
+
+        /* Optional: hover effect */
+        button:hover ~ #circle,
+        a:hover ~ #circle {
+            border-color: #ff4d4d;
+        }
+</style>
+<body>
+    <div id="circle"></div>
+
+    <script>
+        const cursor= document.getElementById("circle");
+         window.addEventListener("mousemove", (e) => {
+            cursor.style.left = e.clientX + "px";
+            cursor.style.top = e.clientY + "px";
+        });
+
+        // Optional: click effect
+        window.addEventListener("mousedown", () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(1.5)";
+            cursor.style.borderColor = "#ff4d4d";
+        });
+
+        window.addEventListener("mouseup", () => {
+            cursor.style.transform = "translate(-50%, -50%) scale(1)";
+            cursor.style.borderColor = "#fff";
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Changer</title>
+</head>
+
+<body>
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.5s ease;
+        }
+
+        #main {
+            text-align: center;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            background-color: #441c1c;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+        h1 {
+        margin-bottom: 15px;
+        font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        color: rgb(16, 86, 85);
+        }
+
+    </style>
+    <div id="main">
+        <h1>Click Button to change the color</h1>
+        <button id="btn">Change Color</button>
+    </div>
+    <script>
+        let button= document.getElementById("btn");
+
+        function random(){
+            const letter="0123456789acbddef"
+            let color="#";
+            for(let i=0; i<6;i++){
+                color+=letter[Math.floor(Math.random()*16)];
+            }
+            return color;
+        }
+        button.addEventListener("click", function(){
+            const randomcolour= random();
+             document.body.style.backgroundColor = randomcolour;
+        })
+    </script>
+</body>
+
+</html>

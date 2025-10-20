@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Typing Speed Test (60 sec)</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body {
+      background: #f3f5f9;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    h1 { margin: 0 0 12px 0; font-size: 20px; color:#222; }
+    #quote {
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px;
+      font-size: 18px;
+      line-height: 1.5;
+      color: #111;
+      min-height: 70px;
+      margin-bottom: 14px;
+      border: 1px solid #e6e9ee;
+    }
+    #text-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #cfd6e3;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    .controls { display:flex; gap:8px; margin-bottom:12px; }
+    button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #e6eefc;
+      color: #1f2937;
+    }
+    .stats { display:flex; gap:18px; align-items:center; flex-wrap:wrap; color:#111; }
+    .stat { min-width:120px; }
+    .correct { color: green; }
+    .incorrect { color: red; text-decoration: underline; }
+    #best-score { margin-top:12px; font-weight:600; color:#333; }
+    @media (max-width:480px) {
+      #quote { font-size:16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Typing Speed Test ⏱️ (60 Seconds)</h1>
+
+    <div id="quote">Click <strong>Start</strong> to begin typing...</div>
+
+    <!-- single-line input allows natural continuous typing; use input so Enter doesn't create new line -->
+    <input id="text-input" type="text" placeholder="Start typing here..." disabled autocomplete="off" />
+
+    <div class="controls">
+      <button id="start-btn">Start</button>
+      <button id="reset-btn" class="secondary">Reset</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat">⏰ Time Left: <span id="timer">--</span></div>
+      <div class="stat">⚡ WPM: <span id="wpm">--</span></div>
+      <div class="stat">🎯 Accuracy: <span id="accuracy">--</span></div>
+    </div>
+
+    <div id="best-score">Best Score: --</div>
+  </div>
+
+  <script>
+    // Elements
+    const quoteDisplay = document.getElementById("quote");
+    const textInput = document.getElementById("text-input");
+    const timerDisplay = document.getElementById("timer");
+    const wpmDisplay = document.getElementById("wpm");
+    const accuracyDisplay = document.getElementById("accuracy");
+    const bestScoreDisplay = document.getElementById("best-score");
+    const startButton = document.getElementById("start-btn");
+    const resetButton = document.getElementById("reset-btn");
+
+    // Samples
+    const quotes = [
+      "The quick brown fox jumps over the lazy dog.",
+      "Typing fast helps you think quickly.",
+      "Practice makes you better every day.",
+      "JavaScript makes websites come alive with interaction.",
+      "Speed and accuracy come with practice and patience.",
+      "Stay calm and keep typing smoothly.",
+      "Consistency is the key to becoming a better typist."
+    ];
+
+    // State
+    let timer = null;
+    const FIXED_SECONDS = 60;      // fixed 60 second test
+    let timeLeft = FIXED_SECONDS;
+    let isRunning = false;
+    let currentQuote = "";
+    let correctChars = 0;
+
+    // Helpers
+    function pickRandomQuote() {
+      return quotes[Math.floor(Math.random() * quotes.length)];
+    }
+
+    function renderQuoteWithHighlights() {
+      // show each char as a span, coloring correct/incorrect/not typed
+      const input = textInput.value;
+      const chars = currentQuote.split("");
+      quoteDisplay.innerHTML = chars.map((ch, i) => {
+        if (input[i] == null) {
+          return `<span>${escapeHtml(ch)}</span>`;
+        } else if (input[i] === ch) {
+          return `<span class="correct">${escapeHtml(ch)}</span>`;
+        } else {
+          return `<span class="incorrect">${escapeHtml(ch)}</span>`;
+        }
+      }).join("");
+    }
+
+    // small helper to avoid accidental HTML injection if quotes contain < >
+    function escapeHtml(s) {
+      return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+    }
+
+    function updateStatsDisplay(wpm, accuracy) {
+      wpmDisplay.textContent = wpm != null ? wpm : "--";
+      accuracyDisplay.textContent = accuracy != null ? accuracy + "%" : "--";
+    }
+
+    // Start test
+    function startTest() {
+      if (isRunning) return;
+      isRunning = true;
+      correctChars = 0;
+      timeLeft = FIXED_SECONDS;
+      currentQuote = pickRandomQuote();
+      // show quote initially (un-highlighted)
+      quoteDisplay.textContent = currentQuote;
+      textInput.value = "";
+      textInput.disabled = false;
+      textInput.focus();
+      updateStatsDisplay("--", "--");
+      timerDisplay.textContent = timeLeft;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          finishTest();
+        }
+      }, 1000);
+    }
+
+    // Finish test
+    function finishTest() {
+      // stop timer safely
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      isRunning = false;
+      textInput.disabled = true;
+
+      // calculate stats
+      const timeTaken = FIXED_SECONDS - timeLeft; // if run full time this equals FIXED_SECONDS
+      // avoid zero-minute division (if user somehow finished instantly)
+      const minutes = Math.max(timeTaken / 60, 1 / 60); // at least 1 second in minutes
+      // count correct chars
+      const typed = textInput.value || "";
+      let correct = 0;
+      for (let i = 0; i < typed.length; i++) {
+        if (typed[i] === currentQuote[i]) correct++;
+      }
+      correctChars = correct;
+
+      const wpm = correctChars > 0 ? Math.round((correctChars / 5) / minutes) : 0;
+      const accuracy = typed.length > 0 ? Math.round((correctChars / typed.length) * 100) : 0;
+
+      // show final highlighted quote (so user sees mistakes)
+      renderQuoteWithHighlights();
+      updateStatsDisplay(wpm, accuracy);
+
+      saveBestScore(wpm);
+    }
+
+    // Save best score to localStorage (store as integer)
+    function saveBestScore(wpm) {
+      const raw = localStorage.getItem("bestWPM");
+      const bestStored = raw ? parseInt(raw, 10) : 0;
+      const newBest = (typeof wpm === "number" && !isNaN(wpm)) ? wpm : 0;
+      if (newBest > bestStored) {
+        localStorage.setItem("bestWPM", String(newBest));
+        bestScoreDisplay.textContent = `Best Score: ${newBest} WPM`;
+      } else {
+        bestScoreDisplay.textContent = `Best Score: ${bestStored} WPM`;
+      }
+    }
+
+    // Reset test UI and state
+    function resetTest() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+      isRunning = false;
+      textInput.value = "";
+      textInput.disabled = true;
+      currentQuote = "";
+      quoteDisplay.textContent = "Click Start to begin typing...";
+      timerDisplay.textContent = "--";
+      updateStatsDisplay("--", "--");
+    }
+
+    // Live typing: highlight and compute a small live preview of WPM/accuracy (optional)
+    textInput.addEventListener("input", () => {
+      if (!currentQuote) return;
+      // highlight letters
+      renderQuoteWithHighlights();
+
+      // quick live preview stats (do not save)
+      const typed = textInput.value || "";
+      let correct = 0;
+      for (let i = 0; i < typed.length; i++) {
+        if (typed[i] === currentQuote[i]) correct++;
+      }
+      // avoid divide by zero: minutes so far
+      const elapsed = FIXED_SECONDS - timeLeft;
+      const minutesSoFar = Math.max(elapsed / 60, 1 / 60);
+      const liveWpm = correct > 0 ? Math.round((correct / 5) / minutesSoFar) : 0;
+      const liveAccuracy = typed.length > 0 ? Math.round((correct / typed.length) * 100) : 0;
+      // show live preview only while running
+      if (isRunning) updateStatsDisplay(liveWpm, liveAccuracy);
+      // If user exactly finished the quote before time ends -> finish early
+      if (isRunning && typed === currentQuote) {
+        finishTest();
+      }
+    });
+
+    // Buttons
+    startButton.addEventListener("click", startTest);
+    resetButton.addEventListener("click", resetTest);
+
+    // load best on open
+    window.addEventListener("DOMContentLoaded", () => {
+      const raw = localStorage.getItem("bestWPM");
+      const bestStored = raw ? parseInt(raw, 10) : null;
+      bestScoreDisplay.textContent = bestStored ? `Best Score: ${bestStored} WPM` : "Best Score: --";
+      // initial UI
+      timerDisplay.textContent = "--";
+      updateStatsDisplay("--", "--");
+      textInput.disabled = true;
+    });
+
+    // ensure intervals are cleared when page is unloaded
+    window.addEventListener("beforeunload", () => {
+      if (timer) clearInterval(timer);
+    });
+  </script>
+</body>
+</html>

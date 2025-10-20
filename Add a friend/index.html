@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+ body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-image: linear-gradient(rgb(87, 177, 200),pink);
+        }
+
+        #main {
+            background-color: #f8cef3;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <h1>Neha Dhattarwal</h1>
+        <button id="btn">Add a friend</button>
+        <div id="status">You are not friends yet</div>
+    </div>
+    <script>
+        const friend= document.getElementById("btn");
+        const status= document.getElementById("status");
+
+        let isFriend= false;
+        friend.addEventListener("click", function(){
+            if(isFriend){
+            isFriend=false;
+            friend.textContent="Add a friend";
+            status.textContent="You are not friends yet!"
+            friend.style.backgroundColor = "#007bff"
+        }else{
+            isFriend=true;
+            friend.textContent="Remove Friend";
+            status.textContent="You are friends";
+            friend.style.backgroundColor='#dc3545';
+        }
+        })
+        
+    </script>
+</body>
+</html>
