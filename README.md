@@ -1,6 +1,3 @@
-# HTML-CSS-JS-Practice-Projects
-beginner-friendly projects built using HTML, CSS, and JavaScript while learning web development.
-
 # HTML, CSS, and JavaScript Practice Projects
 
 This repository contains 18 beginner-friendly projects built using HTML, CSS, and JavaScript. These projects were created to practice fundamental web development concepts and improve front-end skills.
